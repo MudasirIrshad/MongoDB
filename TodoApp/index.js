@@ -3,8 +3,10 @@ const app=express()
 const bodyparser=require('body-parser')
 const port=3000
 const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
 const url='mongodb+srv://mudasirirshad47:mudasir123456789@cluster0.jzcnrjw.mongodb.net/TodoApp'
 mongoose.connect(url)
+app.use(bodyParser.json())
 
 const Tasks=new mongoose.Schema({
     title:String,
@@ -14,7 +16,10 @@ const Tasks=new mongoose.Schema({
 const AddTask=mongoose.model('AddTask',Tasks)
 
 app.post('/tasks',(req,res)=>{
-    res.send('Tasks added successfully')
+    const {title,description}=req.body
+    const newTask=new AddTask({
+        title,description
+    })
 })
 
 app.listen(port,()=>{
