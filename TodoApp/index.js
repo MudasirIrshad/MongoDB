@@ -37,6 +37,19 @@ app.delete('/tasks',async(req,res)=>{
     res.json(task)
 })
 
+app.put('/tasks',async(req,res)=>{
+    const title=req.headers.title
+    const description=req.headers.description
+    const id=req.headers.id
+    const task=await AddTask.findByIdAndUpdate(id,{title,description})
+    if(task){
+        res.send('Updated')
+    }
+    else{
+        res.send('Issue occur')
+    }
+})
+
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
 })
