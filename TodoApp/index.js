@@ -31,6 +31,11 @@ app.get('/tasks',async (req,res)=>{
     res.send(tasks)
 })
 
+app.delete('/tasks',async(req,res)=>{
+    const id=req.headers.id
+    const task=await AddTask.findByIdAndDelete(id)
+    res.json(task)
+})
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
