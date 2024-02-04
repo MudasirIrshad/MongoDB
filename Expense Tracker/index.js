@@ -32,7 +32,25 @@ app.post('/user/signup',(req, res) => {
     }
 })
 
-
+app.post('/user/login',(req, res) => {
+    const token=req.headers.authorization.split(' ')[1]
+    jwt.verify(token,userKey,async(err,user)=>{
+        const gmail=user.gmail
+        if(err){
+            res.send(err)
+        }
+        else{
+            const findUser=await UserSignup.findOne({gmail})
+            console.log(findUser);
+            if(findUser){
+                res.send('Welcome '+findUser)
+            }
+            else{
+                res.send('Invalid')
+            }
+        }
+    })
+})
 
 
 
