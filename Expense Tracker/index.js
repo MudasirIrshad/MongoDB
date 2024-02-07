@@ -14,7 +14,16 @@ const UserSignupSchema=new mongoose.Schema({
     gmail:String,
     password:String
 })
+const UserExpenseSchema=new mongoose.Schema({
+    Description:String,
+    Amount:Number,
+    User: {
+        type: Schema.Types.ObjectId,
+        ref: 'UserSignup'
+      }
+})
 const UserSignup=mongoose.model('UserSignup',UserSignupSchema)
+
 
 const userKey="UserSignup Done"
 app.post('/user/signup',async(req, res) => {
@@ -62,10 +71,9 @@ app.post('/user/login',LoginMiddleware,(req, res) => {
    res.send('Login successful')
 })
 
+app.post('/user/Expense',LoginMiddleware,(req, res) => {
 
-
-
-
+})
 
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
