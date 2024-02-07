@@ -12,18 +12,18 @@ app.use(express.json())
 const UserSignupSchema=new mongoose.Schema({
     name:String,
     gmail:String,
-    password:String
+    password:String,
+    expense:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ExpenseModel'
+    }
 })
 const UserExpenseSchema=new mongoose.Schema({
-    Description:String,
-    Amount:Number,
-    User: {
-        type: Schema.Types.ObjectId,
-        ref: 'UserSignup'
-      }
+    description:String,
+    amount:Number
 })
 const UserSignup=mongoose.model('UserSignup',UserSignupSchema)
-
+const ExpenseModel=mongoose.model('ExpenseModel',UserExpenseSchema)
 
 const userKey="UserSignup Done"
 app.post('/user/signup',async(req, res) => {
@@ -72,7 +72,10 @@ app.post('/user/login',LoginMiddleware,(req, res) => {
 })
 
 app.post('/user/Expense',LoginMiddleware,(req, res) => {
-
+    const {description,amount}=req.body
+    const expense=new ExpenseModel({description,amount})
+    expense.save()
+    res.send(expense.toJSON())
 })
 
 app.listen(port,()=>{
