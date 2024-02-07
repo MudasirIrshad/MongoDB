@@ -77,7 +77,9 @@ app.post('/user/Expense',LoginMiddleware,(req, res) => {
     expense.save()
     res.send(expense.toJSON())
 })
-
+app.get('/user',LoginMiddleware,(req, res) => {
+    res.send
+})
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
 })
