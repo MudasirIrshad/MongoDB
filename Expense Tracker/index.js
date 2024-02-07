@@ -37,11 +37,8 @@ app.post('/user/signup',async(req, res) => {
             res.send(token)
         }
     }
-    
-    
 })
-
-app.post('/user/login',(req, res) => {
+function LoginMiddleware(req, res, next) {
     const token=req.headers.authorization.split(' ')[1]
     jwt.verify(token,userKey,async(err,user)=>{
         const gmail=user.gmail
@@ -52,13 +49,17 @@ app.post('/user/login',(req, res) => {
             const findUser=await UserSignup.findOne({gmail})
             console.log(findUser);
             if(findUser){
-                res.send('Welcome '+findUser)
+                next()
             }
             else{
                 res.send('Invalid')
             }
         }
     })
+}
+
+app.post('/user/login',LoginMiddleware,(req, res) => {
+   res.send('Login successful')
 })
 
 
