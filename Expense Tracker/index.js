@@ -98,6 +98,23 @@ app.post('/user/Expense',LoginMiddleware,async (req, res) => {
         res.send('Invalid')
     }
 })
+
+app.post('/user/Income',LoginMiddleware,async (req, res) => {
+    const {description,amount}=req.body
+    const income=new IncomeModel({description,amount})
+    const gmail=req.user.gmail
+    const findUser=await UserSignup.findOne({gmail})
+    if(findUser){
+        findUser.income.push(income._id)
+        findUser.save()
+        income.save()
+        res.send(findUser)
+    }
+    else{
+        res.send('Invalid')
+    }
+})
+
 app.get('/user',LoginMiddleware,async (req, res) => {
     let gmail=req.user.gmail
     const findUser=await UserSignup.findOne({gmail})
