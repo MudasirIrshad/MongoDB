@@ -120,6 +120,27 @@ app.get('/user',LoginMiddleware,async (req, res) => {
     const findUser=await UserSignup.findOne({gmail})
     res.send(findUser)
 })
+
+app.get('/user/Expense',LoginMiddleware,async (req, res) => {
+    const gmail=req.user.gmail
+    const findUser=await UserSignup.findOne({gmail})
+    let totalExpenseAmount=0
+    let totalExpense=[]
+    for (let i of findUser.expense){
+        const expense=await ExpenseModel.findById(i)
+        totalExpenseAmount+=expense.amount
+        totalExpense.push(expense)
+    }
+    const expenses=await ExpenseModel.findById(findUser.expense)
+    res.json({totalExpense,totalExpenseAmount})
+})
+
+
+
+
+
+
+
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
 })
