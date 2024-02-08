@@ -16,6 +16,10 @@ const UserSignupSchema=new mongoose.Schema({
     expense:[{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'ExpenseModel'
+    }],
+    income:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'IncomeModel'
     }]
 })
 const UserExpenseSchema=new mongoose.Schema({
@@ -54,15 +58,17 @@ app.post('/user/signup',async(req, res) => {
 })
 function LoginMiddleware(req, res, next) {
     const token=req.headers.authorization.split(' ')[1]
-    jwt.verify(token,userKey,async(err,user)=>{
-        const gmail=user.gmail
+    jwt.verify(token,userKey,async(err,decoded)=>{
+        const gmail=decoded.gmail
         if(err){
+            
             res.send(err)
         }
         else{
             const findUser=await UserSignup.findOne({gmail})
-            console.log(findUser);
+            
             if(findUser){
+                req.user=decoded
                 next()
             }
             else{
@@ -73,40 +79,29 @@ function LoginMiddleware(req, res, next) {
 }
 
 app.post('/user/login',LoginMiddleware,(req, res) => {
-   res.send('Login successful')
+    let User = req.user
+    res.send(User)
 })
 
-app.post('/user/Expense',LoginMiddleware,(req, res) => {
+app.post('/user/Expense',LoginMiddleware,async (req, res) => {
     const {description,amount}=req.body
     const expense=new ExpenseModel({description,amount})
-    const token=req.headers.authorization.split(' ')[1]
-    jwt.verify(token,userKey,async(err,user)=>{
-        const gmail=user.gmail
-        const findUser=await UserSignup.findOne({gmail})
-        if(findUser){
-            findUser.expense.push(expense._id)
-            findUser.save()
-            res.send(findUser)
-        }
-        else{
-            res.send('Invalid')
-        }
-    })
-    expense.save()
+    const gmail=req.user.gmail
+    const findUser=await UserSignup.findOne({gmail})
+    if(findUser){
+        findUser.expense.push(expense._id)
+        findUser.save()
+        expense.save()
+        res.send(findUser)
+    }
+    else{
+        res.send('Invalid')
+    }
 })
-app.get('/user',LoginMiddleware,(req, res) => {
-    const token =req.headers.authorization.split(' ')[1]
-    jwt.verify(token,userKey,async(err,user)=>{
-        const gmail=user.gmail
-        
-        const findUser=await UserSignup.findOne({gmail})
-        if(findUser){
-            res.send(findUser)
-        }
-        else{
-            res.send('Invalid')
-        }
-    })
+app.get('/user',LoginMiddleware,async (req, res) => {
+    let gmail=req.user.gmail
+    const findUser=await UserSignup.findOne({gmail})
+    res.send(findUser)
 })
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
