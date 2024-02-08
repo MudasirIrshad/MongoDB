@@ -22,8 +22,13 @@ const UserExpenseSchema=new mongoose.Schema({
     description:String,
     amount:Number
 })
+const UserIncomeSchema=new mongoose.Schema({
+    description:String,
+    amount:Number
+})
 const UserSignup=mongoose.model('UserSignup',UserSignupSchema)
 const ExpenseModel=mongoose.model('ExpenseModel',UserExpenseSchema)
+const IncomeModel=mongoose.model('IncomeModel',UserIncomeSchema)
 
 const userKey="UserSignup Done"
 app.post('/user/signup',async(req, res) => {
