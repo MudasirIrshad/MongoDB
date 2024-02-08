@@ -78,7 +78,18 @@ app.post('/user/Expense',LoginMiddleware,(req, res) => {
     res.send(expense.toJSON())
 })
 app.get('/user',LoginMiddleware,(req, res) => {
-    res.send
+    const token =req.headers.authorization.split(' ')[1]
+    jwt.verify(token,userKey,async(err,user)=>{
+        const gmail=user.gmail
+        const findUser=await UserSignup.findOne({gmail})
+        if(findUser){
+            res.send(findUser)
+        }
+        else{
+            res.send('Invalid')
+        }
+    })
+    res.send()
 })
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
