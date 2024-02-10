@@ -13,7 +13,7 @@ const UserSignupSchema = mongoose.Schema({
     name:String,
     gmail:String,
     password:String,
-    expense:[{
+    blogs:[{
         type: mongoose.Schema.Types.ObjectId,
         ref:'UserSignupModel'
     }]
@@ -55,6 +55,35 @@ app.post('/user/login',async (req,res)=>{
         res.send('Invalid Credentials')
     }
     
+})
+let Userauthentication=(req,res,next)=>{
+    let token=req.headers.authorization.split(' ')[1]
+    jwt.verify(token,secretKey,(err,decoded)=>{
+        if(err){
+            res.send(err)
+        }
+        else{
+            req.user=decoded
+            next()
+        }
+    })
+}
+app.post('/blog',Userauthentication,async(req,res)=>{
+    let {title,body,author}=req.body
+    const newBlog=new BlogModel({
+        title,
+        body,
+        author
+    })
+    
+    console.log(req.user.gmail);
+    
+    newBlog.save()
+    
+    res.send(newBlog)
+})
+app.get('/user',Userauthentication,(req,res)=>{
+    res.send(req.user)
 })
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
