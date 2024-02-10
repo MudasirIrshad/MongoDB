@@ -26,9 +26,9 @@ const Blog_PostSchema = mongoose.Schema({
 const UserSignupModel=mongoose.model('UserSignup',UserSignupSchema)
 const BlogModel=mongoose.model('BlogModel',Blog_PostSchema)
 
-app.post('/user/signup',(req,res)=>{
+app.post('/user/signup',async(req,res)=>{
    const {name,gmail,password}=req.body
-   const foundUser=UserSignupModel.findOne({gmail})
+   const foundUser=await UserSignupModel.findOne({gmail})
    if(foundUser){
     res.send('User Already Exist')
    }
@@ -43,27 +43,18 @@ app.post('/user/signup',(req,res)=>{
    }
 })
 
-app.post('/user/login',(req,res)=>{
-    const {gmail,password}=req.body
-    UserSignupModel.findOne({gmail},(err,user)=>{
-        if(err){
-            res.send(err)
-        }
-        else{
-            if(user){
-                if(user.password===password){
-                    const token=jwt.sign({gmail:gmail},'mudasirirshad47',{expiresIn:60*60*24})
-                    res.send({token:token})
-                }
-                else{
-                    res.send('Invalid Password')
-                }
-            }
-            else{
-                res.send('Invalid User')
-            }
-        }
-    })
+const secretKey="hello this is user signup key"
+app.post('/user/login',async (req,res)=>{
+    const {name,gmail,password}=req.body
+    let foundUser=await UserSignupModel.findOne({name,gmail,password})
+    if(foundUser){
+        const token=jwt.sign({foundUser},secretKey)
+        res.send(token)
+    }
+    else{
+        res.send('Invalid Credentials')
+    }
+    
 })
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
