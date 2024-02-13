@@ -91,8 +91,11 @@ app.post('/blog',Userauthentication,async(req,res)=>{
     await founded.save()
     res.send(founded)
 })
-app.get('/user',Userauthentication,(req,res)=>{
-    
+app.get('/user',Userauthentication,async (req,res)=>{
+    let gmail = req.user.gmail
+    const founded=await UserSignupModel.findOne({gmail})
+    res.send(founded)
+
 })
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
