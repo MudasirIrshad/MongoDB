@@ -15,7 +15,7 @@ const UserSignupSchema = mongoose.Schema({
     password:String,
     blogs:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref:'UserSignupModel'
+        ref:'BlogModel'
     }]
 })
 const Blog_PostSchema = mongoose.Schema({
@@ -28,8 +28,8 @@ const BlogModel=mongoose.model('BlogModel',Blog_PostSchema)
 
 app.post('/user/signup',async(req,res)=>{
    const {name,gmail,password}=req.body
-   const foundUser=await UserSignupModel.findOne({gmail})
-   if(foundUser){
+   const founded=await UserSignupModel.findOne({gmail})
+   if(founded){
     res.send('User Already Exist')
    }
    else{
@@ -46,9 +46,9 @@ app.post('/user/signup',async(req,res)=>{
 const secretKey="hello this is user signup key"
 app.post('/user/login',async (req,res)=>{
     const {name,gmail,password}=req.body
-    let foundUser=await UserSignupModel.findOne({name,gmail,password})
-    if(foundUser){
-        const token=jwt.sign({foundUser},secretKey)
+    const founded=await UserSignupModel.findOne({name,gmail,password})
+    if(founded){
+        const token=jwt.sign({name,gmail,password},secretKey)
         res.send(token)
     }
     else{
@@ -56,15 +56,21 @@ app.post('/user/login',async (req,res)=>{
     }
     
 })
-let Userauthentication=(req,res,next)=>{
-    let token=req.headers.authorization.split(' ')[1]
-    jwt.verify(token,secretKey,(err,decoded)=>{
-        if(err){
-            res.send(err)
-        }
-        else{
+function Userauthentication(req,res,next){
+    const token=req.headers.authorization.split(' ')[1]
+    jwt.verify(token,secretKey,async(err,decoded)=>{
+        console.log(decoded);
+        const gmail=decoded.gmail
+        console.log(gmail);
+        const founded=await UserSignupModel.findOne({gmail})
+        
+        if(founded){
             req.user=decoded
+            
             next()
+        }
+        else {
+            res.send(err)
         }
     })
 }
@@ -76,14 +82,17 @@ app.post('/blog',Userauthentication,async(req,res)=>{
         author
     })
     
-    console.log(req.user.gmail);
+    const gmail=req.user.gmail
+    const founded=await UserSignupModel.findOne({gmail})
+    console.log(founded.blogs);
     
+    founded.blogs.push(newBlog._id)
     newBlog.save()
-    
-    res.send(newBlog)
+    await founded.save()
+    res.send(founded)
 })
 app.get('/user',Userauthentication,(req,res)=>{
-    res.send(req.user)
+    
 })
 app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
