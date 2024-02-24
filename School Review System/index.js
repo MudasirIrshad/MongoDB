@@ -31,7 +31,7 @@ const RatingSchema = mongoose.Schema({
     name:String,
     rating:Number
 })
-
+const RatingModel = mongoose.model('RatingModel',RatingSchema)
 app.post('/user/signup',(req,res)=>{
     const {name,gmail,password}=req.body
     const newUser=new UserSignup({
@@ -65,4 +65,51 @@ app.post('/user/login',async(req,res)=>{
     else{
         res.send({message:"User Not Found"})
     }
+})
+
+const LoginMiddleware = (req,res,next)=>{
+    const token = req.headers.authorization.split(' ')[1]
+    if(token){
+        jwt.verify(token,userToken,(err,decoded)=>{
+            if(err){
+                res.status(401).send({message:"Unauthorized"})
+            }
+            else{
+                req.user=decoded
+                next()
+            }
+        })
+    }
+    else{
+        res.status(401).send({message:"Unauthorized"})
+    }
+}
+
+app.post('/school/rating',LoginMiddleware,async(req,res)=>{
+    const schoolName = req.body.name
+    const rating = req.body.rating
+    const school = await SchoolDetail.findOne({schoolName})
+    console.log(schoolName);
+    const newRating = new RatingModel({
+        name:schoolName,
+        rating:rating
+    })
+    
+    newRating.save()
+    // school.save()
+    res.send(newRating)
+})
+
+app.post('/school/details', (req, res)=>{
+    const schoolName = req.body.name
+    
+    const newSchool = new SchoolDetail({
+        name:schoolName
+    })
+    newSchool.save()
+    res.send(newSchool)
+})
+app.get('/school/details',async(req,res)=>{
+    const schools=await SchoolDetail.find()
+    res.send(schools)
 })
