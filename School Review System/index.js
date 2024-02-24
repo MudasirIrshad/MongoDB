@@ -11,7 +11,6 @@ app.listen(port,()=>{
     console.log(`Server is running on port ${port}`)
 })
 
-
 const UserSignupSchema = mongoose.Schema({
     name:String,
     gmail:String,
