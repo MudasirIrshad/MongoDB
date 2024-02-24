@@ -87,17 +87,19 @@ const LoginMiddleware = (req,res,next)=>{
 
 app.post('/school/rating',LoginMiddleware,async(req,res)=>{
     const schoolName = req.body.name
-    const rating = req.body.rating
-    const school = await SchoolDetail.findOne({schoolName})
-    console.log(schoolName);
-    const newRating = new RatingModel({
-        name:schoolName,
-        rating:rating
-    })
+    let school=await SchoolDetail.find({name:schoolName})
+    const rating = Number(req.body.rating)
+    if(school){
+        const newRating = new RatingModel({
+            name:school.name,
+            rating:rating
+        })
+        // school.save()
+        newRating.save()
+        res.send(newRating)
+        
+    }
     
-    newRating.save()
-    // school.save()
-    res.send(newRating)
 })
 
 app.post('/school/details', (req, res)=>{
