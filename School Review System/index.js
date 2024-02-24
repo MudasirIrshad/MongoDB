@@ -31,3 +31,10 @@ const RatingSchema = mongoose.Schema({
     name:String,
     rating:Number
 })
+
+app.post('/user/signup',(req,res)=>{
+    const {name,gmail,password}=req.body
+    const newUser=new UserSignup({
+        name,gmail,password
+    })
+})
