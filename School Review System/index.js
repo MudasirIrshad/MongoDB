@@ -37,4 +37,32 @@ app.post('/user/signup',(req,res)=>{
     const newUser=new UserSignup({
         name,gmail,password
     })
+    newUser.save()
+    res.send({name,gmail,message:"Signup Done"})
+})
+
+app.get('/user',async(req,res)=>{
+    const Users = await UserSignup.find()
+    res.send(Users)
+})
+
+const userToken = "this is user jwt Toekn"
+app.post('/user/login',async(req,res)=>{
+    const password = Number(req.body.password)
+    const gmail = req.body.gmail
+    
+    const user=await UserSignup.findOne({gmail})
+    if(user){
+        if(user.password===password){
+            const token=jwt.sign({gmail:gmail},userToken)
+            console.log(password);
+            res.send({token})
+        }
+        else{
+            res.send({message:"Wrong Password"})
+        }
+    }
+    else{
+        res.send({message:"User Not Found"})
+    }
 })
